@@ -15,24 +15,30 @@ npm run dev      # http://localhost:3000
 npm run build    # production build
 ```
 
-## Current state
+## Accounts & data (real backend)
 
-Accounts and profiles are stored **client-side in the browser** (`lib/store.ts`) so
-the whole flow works on a static deploy with no secrets. This is a preview backend —
-not real multi-user auth, and not secure.
+Accounts and profiles are stored in **Postgres via Prisma**. Auth is username +
+passcode (passcode hashed with bcrypt) with a signed httpOnly session cookie (JWT).
 
-## Phase 2 — real accounts (planned)
+| Env var        | What it's for                                       |
+| -------------- | --------------------------------------------------- |
+| `DATABASE_URL` | Postgres connection (Vercel Postgres / Neon / Supabase); use the pooled URL on serverless |
+| `AUTH_SECRET`  | Secret used to sign the session cookie (`openssl rand -base64 32`) |
 
-Swap the functions in `lib/store.ts` for API calls and wire:
+### First-time database setup
 
-| Env var                 | What it's for                          |
-| ----------------------- | -------------------------------------- |
-| `AUTH_SECRET`           | Auth.js session encryption             |
-| `AUTH_DISCORD_ID`       | Discord OAuth client id                |
-| `AUTH_DISCORD_SECRET`   | Discord OAuth client secret            |
-| `DATABASE_URL`          | Postgres connection (Vercel Postgres / Neon) |
+```bash
+cp .env.example .env        # fill in DATABASE_URL + AUTH_SECRET
+npm run db:push             # create the tables
+```
 
-Set these in the Vercel project settings; nothing else in the app reads env today.
+On Vercel, set both env vars in Project → Settings → Environment Variables, then
+redeploy. `prisma generate` runs automatically on install (postinstall).
+
+Data model lives in `prisma/schema.prisma`; server data access is in
+`lib/profile-service.ts`, auth in `lib/auth.ts`, and the API routes in
+`app/api/**`. Discord OAuth login is not wired yet — it can be added later as an
+extra provider.
 
 ## Deploy notes
 
