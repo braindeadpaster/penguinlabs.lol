@@ -25,8 +25,26 @@ export default function ProfileView({
 
   return (
     <main className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-5 py-10">
+      {!preview && profile.backgroundUrl && (
+        <div className="pointer-events-none fixed inset-0" aria-hidden>
+          {profile.backgroundType === "video" ? (
+            <video
+              src={profile.backgroundUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile.backgroundUrl} alt="" className="h-full w-full object-cover" />
+          )}
+          <div className="absolute inset-0 bg-ink-950/60" />
+        </div>
+      )}
       <ParticleBackground style={profile.background} accent={accent} />
-      {!preview && <CustomCursor accent={accent} />}
+      {!preview && <CustomCursor accent={accent} image={profile.cursor || undefined} />}
       {!preview && !entered && <EnterScreen accent={accent} onEnter={() => setEntered(true)} />}
 
       <div

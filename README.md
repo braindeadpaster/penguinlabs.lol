@@ -20,10 +20,11 @@ npm run build    # production build
 Accounts and profiles are stored in **Postgres via Prisma**. Auth is username +
 passcode (passcode hashed with bcrypt) with a signed httpOnly session cookie (JWT).
 
-| Env var        | What it's for                                       |
-| -------------- | --------------------------------------------------- |
-| `DATABASE_URL` | Postgres connection (Vercel Postgres / Neon / Supabase); use the pooled URL on serverless |
-| `AUTH_SECRET`  | Secret used to sign the session cookie (`openssl rand -base64 32`) |
+| Env var                 | What it's for                                       |
+| ----------------------- | --------------------------------------------------- |
+| `DATABASE_URL`          | Postgres connection (Vercel Postgres / Neon / Supabase); use the pooled URL on serverless |
+| `AUTH_SECRET`           | Secret used to sign the session cookie (`openssl rand -base64 32`) |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob store token — required for avatar/background/music/cursor **uploads**. Without it the drag-and-drop zones return a clear "uploads aren't configured" error. Create a Blob store in Vercel → Storage and it's added automatically. |
 
 ### First-time database setup
 

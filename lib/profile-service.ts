@@ -24,6 +24,9 @@ function toProfile(p: DbProfile): Profile {
     avatar: p.avatar,
     accent: p.accent,
     background: p.background as BackgroundStyle,
+    backgroundUrl: p.backgroundUrl ?? undefined,
+    backgroundType: (p.backgroundType as Profile["backgroundType"]) ?? "image",
+    cursor: p.cursor ?? undefined,
     location: p.location ?? undefined,
     socials: (p.socials as unknown as SocialLink[]) ?? [],
     links: (p.links as unknown as CustomLink[]) ?? [],
@@ -83,10 +86,13 @@ export function sanitizeProfileInput(body: any): Partial<Profile> {
       .filter((t: unknown) => typeof t === "string" && t.length)
       .slice(0, 6)
       .map((t: string) => t.slice(0, 80));
-  if (typeof body?.avatar === "string") out.avatar = body.avatar.slice(0, 500) || "/bud.png";
+  if (typeof body?.avatar === "string") out.avatar = body.avatar.slice(0, 1000) || "/bud.png";
   if (typeof body?.accent === "string" && /^#[0-9a-fA-F]{3,8}$/.test(body.accent)) out.accent = body.accent;
   if (body?.background === "particles" || body?.background === "grid" || body?.background === "plain")
     out.background = body.background;
+  if (typeof body?.backgroundUrl === "string") out.backgroundUrl = body.backgroundUrl.slice(0, 1000);
+  if (body?.backgroundType === "image" || body?.backgroundType === "video") out.backgroundType = body.backgroundType;
+  if (typeof body?.cursor === "string") out.cursor = body.cursor.slice(0, 1000);
   if (typeof body?.location === "string") out.location = body.location.slice(0, 60);
   if (Array.isArray(body?.socials))
     out.socials = body.socials.filter(validSocial).slice(0, 12) as SocialLink[];

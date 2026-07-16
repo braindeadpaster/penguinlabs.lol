@@ -21,18 +21,23 @@ export async function PUT(req: Request) {
   }
 
   const data = sanitizeProfileInput(body);
-  const music = validMusic(body?.music);
+
+  // Build a partial update: only fields actually present in the request are
+  // touched, so saving one dashboard section never clobbers another's data.
+  const updateData: Prisma.ProfileUpdateInput = {
+    ...data,
+    socials: data.socials as unknown as Prisma.InputJsonValue | undefined,
+    links: data.links as unknown as Prisma.InputJsonValue | undefined,
+  };
+  if ("music" in (body ?? {})) {
+    const music = validMusic(body.music);
+    updateData.music = music ?? Prisma.DbNull;
+  }
 
   try {
     await prisma.profile.update({
       where: { username: session.username },
-      data: {
-        ...data,
-        // JSON columns must be handed to Prisma as InputJsonValue
-        socials: data.socials as unknown as Prisma.InputJsonValue | undefined,
-        links: data.links as unknown as Prisma.InputJsonValue | undefined,
-        music: music ?? Prisma.DbNull,
-      },
+      data: updateData,
     });
   } catch {
     return NextResponse.json({ ok: false, error: "could not save" }, { status: 500 });

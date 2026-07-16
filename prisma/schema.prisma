@@ -12,11 +12,12 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  passHash  String
-  createdAt DateTime @default(now())
-  profile   Profile?
+  id                String    @id @default(cuid())
+  username          String    @unique
+  passHash          String
+  createdAt         DateTime  @default(now())
+  usernameChangedAt DateTime?
+  profile           Profile?
 }
 
 model Profile {
@@ -28,10 +29,13 @@ model Profile {
   displayName String
   bio         String   @default("")
   taglines    String[]
-  avatar      String   @default("/bud.png")
-  accent      String   @default("#6fa8dc")
-  background  String   @default("particles")
-  location    String?
+  avatar         String  @default("/bud.png")
+  accent         String  @default("#6fa8dc")
+  background     String  @default("particles")
+  backgroundUrl  String?
+  backgroundType String  @default("image")
+  cursor         String?
+  location       String?
   socials     Json     @default("[]")
   links       Json     @default("[]")
   music       Json?
