@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Profile } from "@/lib/profiles";
 import { SocialIcon } from "./Icons";
@@ -13,27 +13,38 @@ import EnterScreen from "./EnterScreen";
 export default function ProfileView({
   profile,
   preview = false,
+  views,
 }: {
   profile: Profile;
   preview?: boolean;
+  views?: number;
 }) {
   const [entered, setEntered] = useState(preview);
-  const [views, setViews] = useState<number | null>(null);
   const accent = profile.accent || "#6fa8dc";
-
-  useEffect(() => {
-    if (preview || typeof window === "undefined") return;
-    const key = `penguin.views.${profile.username.toLowerCase()}`;
-    const base = 1000 + (hashString(profile.username) % 8000);
-    const n = parseInt(localStorage.getItem(key) || String(base), 10) + 1;
-    localStorage.setItem(key, String(n));
-    setViews(n);
-  }, [preview, profile.username]);
+  const showViews = !preview && typeof views === "number";
 
   return (
     <main className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-5 py-10">
+      {!preview && profile.backgroundUrl && (
+        <div className="pointer-events-none fixed inset-0" aria-hidden>
+          {profile.backgroundType === "video" ? (
+            <video
+              src={profile.backgroundUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile.backgroundUrl} alt="" className="h-full w-full object-cover" />
+          )}
+          <div className="absolute inset-0 bg-ink-950/60" />
+        </div>
+      )}
       <ParticleBackground style={profile.background} accent={accent} />
-      {!preview && <CustomCursor accent={accent} />}
+      {!preview && <CustomCursor accent={accent} image={profile.cursor || undefined} />}
       {!preview && !entered && <EnterScreen accent={accent} onEnter={() => setEntered(true)} />}
 
       <div
@@ -129,9 +140,9 @@ export default function ProfileView({
           )}
 
           {/* views */}
-          {views !== null && (
+          {showViews && (
             <div className="mt-6 font-mono text-[11px] text-white/30">
-              {views.toLocaleString()} views
+              {views!.toLocaleString()} views
             </div>
           )}
         </div>
@@ -149,10 +160,4 @@ export default function ProfileView({
       </div>
     </main>
   );
-}
-
-function hashString(s: string) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
 }

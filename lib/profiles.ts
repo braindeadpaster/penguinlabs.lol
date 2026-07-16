@@ -42,6 +42,7 @@ export interface CustomLink {
 }
 
 export type BackgroundStyle = "particles" | "grid" | "plain";
+export type BackgroundType = "image" | "video";
 
 export interface Profile {
   username: string;
@@ -52,6 +53,11 @@ export interface Profile {
   avatar: string;
   accent: string;
   background: BackgroundStyle;
+  /** Optional uploaded background media (image or video) shown behind the effect. */
+  backgroundUrl?: string;
+  backgroundType?: BackgroundType;
+  /** Optional custom cursor image. */
+  cursor?: string;
   location?: string;
   socials: SocialLink[];
   links: CustomLink[];
@@ -67,6 +73,7 @@ export function emptyProfile(username: string): Profile {
     avatar: "/bud.png",
     accent: "#6fa8dc",
     background: "particles",
+    backgroundType: "image",
     socials: [],
     links: [],
   };

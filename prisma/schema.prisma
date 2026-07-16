@@ -1,0 +1,44 @@
+// Postgres schema for penguinlabs.lol accounts + profiles.
+// Generate the client with `prisma generate`; create tables with
+// `prisma db push` (or `prisma migrate deploy` once migrations exist).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  username          String    @unique
+  passHash          String
+  createdAt         DateTime  @default(now())
+  usernameChangedAt DateTime?
+  profile           Profile?
+}
+
+model Profile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // denormalized copy of the owner's username for fast public lookups
+  username    String   @unique
+  displayName String
+  bio         String   @default("")
+  taglines    String[]
+  avatar         String  @default("/bud.png")
+  accent         String  @default("#6fa8dc")
+  background     String  @default("particles")
+  backgroundUrl  String?
+  backgroundType String  @default("image")
+  cursor         String?
+  location       String?
+  socials     Json     @default("[]")
+  links       Json     @default("[]")
+  music       Json?
+  views       Int      @default(0)
+  updatedAt   DateTime @updatedAt
+}
